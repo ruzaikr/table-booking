@@ -62,9 +62,6 @@ const handleSubmit = async (formData: FormData) => {
          endTime: endTime,
        })
        .execute();
-
-    // Redirect to thank-you page
-    redirect('reserve/confirmation');
   } catch (error: unknown) {
     // Handle insertion errors
     if (error instanceof Error) {
@@ -72,7 +69,10 @@ const handleSubmit = async (formData: FormData) => {
     } else {
       console.error('An unexpected error occurred.');
     }
+    return; // Exit the function if there's an error
   }
+
+  redirect('/reserve/confirmation');
 };
 
 export default function ReservePage() {
