@@ -17,7 +17,7 @@ export const reservations = table(
    "reservations",
    {
      id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
-     tableId: t.integer("table_id")
+     diningtableId: t.integer("diningtable_id")
         .notNull()
         .references(() => diningtables.id, { onDelete: 'cascade' }),
      email: t.varchar("email", { length: 255 }).notNull(),

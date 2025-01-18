@@ -1,18 +1,85 @@
-'use client';
+import { reservations, diningtables } from '@/schema';
+import { db } from '@/db';
+import { redirect } from 'next/navigation';
+import { gte } from 'drizzle-orm';
+
+// Helper function to calculate end time (2 hours after start time)
+const getEndTime = (startTime: string): string => {
+  const [hour, minute] = startTime.split(':').map(Number);
+  const date = new Date();
+  date.setHours(hour + 2, minute); // Add 2 hours to the start time
+  return date.toTimeString().slice(0, 5);
+};
+
+// Server action to handle form submission
+const handleSubmit = async (formData: FormData) => {
+  'use server';
+
+  // Extract form data
+  const name = formData.get('name') as string;
+  const email = formData.get('email') as string;
+  const date = formData.get('date') as string;
+  const time = formData.get('time') as string;
+  const guests = formData.get('guests') as string;
+
+  // Basic Validation
+  if (!name || !email || !date || !time || !guests) {
+    console.error('All required fields must be filled out.');
+    return;
+  }
+
+  // Additional validations can be added here
+  // For example: Validate email format, date range, etc.
+
+  // Determine end time based on start time
+  const endTime = getEndTime(time);
+
+  // Find an available table
+  const diningtable = await db
+     .select()
+     .from(diningtables)
+     .where(gte(diningtables.capacity, Number(guests)))
+     .limit(1)
+     .execute()
+     .then((res) => res[0]);
+
+  if (!diningtable) {
+    // Handle no available table
+    console.error('No available table found for the selected number of guests.');
+    return;
+  }
+
+  // Insert the reservation
+  try {
+    await db
+       .insert(reservations)
+       .values({
+         diningtableId: diningtable.id,
+         email: email,
+         reservationDate: date,
+         startTime: time,
+         endTime: endTime,
+       })
+       .execute();
+
+    // Redirect to thank-you page
+    redirect('/thank-you');
+  } catch (error: unknown) {
+    // Handle insertion errors
+    if (error instanceof Error) {
+      console.error('Error creating reservation:', error.message);
+    } else {
+      console.error('An unexpected error occurred.');
+    }
+  }
+};
 
 export default function ReservePage() {
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle form submission here
-    console.log('Form submitted');
-  };
-
   return (
-
      <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
        <h1 className="text-3xl font-bold mb-8">Reserve a Table</h1>
 
-       <form onSubmit={handleSubmit} className="space-y-6">
+       <form action={handleSubmit} className="space-y-6">
          <div>
            <label htmlFor="name" className="block text-sm font-medium mb-2">
              Name
@@ -117,6 +184,5 @@ export default function ReservePage() {
          </button>
        </form>
      </main>
-
   );
 }
