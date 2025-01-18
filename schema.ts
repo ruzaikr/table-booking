@@ -23,8 +23,8 @@ export const reservations = table(
      name: t.varchar("name", { length: 100 }).notNull(),
      email: t.varchar("email", { length: 255 }).notNull(),
      reservationDate: t.date("reservation_date").notNull(),
-     startTime: t.varchar("start_time", { length: 5 }).notNull(),
-     endTime: t.varchar("end_time", { length: 5 }).notNull(),
+     startTime: t.time("start_time").notNull(),
+     endTime: t.time("end_time").notNull(),
      createdAt: t.timestamp("created_at", { mode: 'date' }).$defaultFn(() => new Date()),
    },
    (table) => {
@@ -35,7 +35,8 @@ export const reservations = table(
        // Check constraints using SQL template literals
        dateCheck: t.check(
           'check_date_within_20_days',
-          sql`reservation_date >= CURRENT_DATE AND reservation_date <= CURRENT_DATE + INTERVAL '20 days'`
+          sql`reservation_date
+          >= CURRENT_DATE AND reservation_date <= CURRENT_DATE + INTERVAL '20 days'`
        ),
 
        mondayCheck: t.check(
@@ -45,13 +46,16 @@ export const reservations = table(
 
        startTimeCheck: t.check(
           'check_allowed_start_times',
-          sql`start_time IN ('18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00')`
+          sql`start_time
+          IN ('18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00')`
        ),
 
        endTimeCheck: t.check(
           'check_end_time',
-          sql`(start_time, end_time) IN (('18:00','20:00'), ('18:30','20:30'), ('19:00','21:00'), ('19:30','21:30'), ('20:00','22:00'), ('20:30','22:30'), ('21:00','23:00'))`
-       ),
+          sql`(start_time, end_time)
+              IN (('18:00','20:00'), ('18:30','20:30'), ('19:00','21:00'), ('19:30','21:30'), ('20:00','22:00'), ('20:30','22:30'), ('21:00','23:00'))`
+       )
+
      };
    }
 );
