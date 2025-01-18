@@ -2,9 +2,9 @@ import { pgTable as table } from 'drizzle-orm/pg-core';
 import * as t from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 
-// Define the "diningtables" table
-export const diningtables = table(
-   "diningtables",
+// Define the "dining_tables" table
+export const diningTables = table(
+   "dining_tables",
    {
      id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
      name: t.varchar("name", { length: 50 }).notNull(),
@@ -17,9 +17,10 @@ export const reservations = table(
    "reservations",
    {
      id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
-     diningtableId: t.integer("diningtable_id")
+     diningTableId: t.integer("dining_table_id")
         .notNull()
-        .references(() => diningtables.id, { onDelete: 'cascade' }),
+        .references(() => diningTables.id, { onDelete: 'cascade' }),
+     name: t.varchar("name", { length: 100 }).notNull(),
      email: t.varchar("email", { length: 255 }).notNull(),
      reservationDate: t.date("reservation_date").notNull(),
      startTime: t.varchar("start_time", { length: 5 }).notNull(),

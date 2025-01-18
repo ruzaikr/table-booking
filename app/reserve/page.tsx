@@ -1,4 +1,4 @@
-import { reservations, diningtables } from '@/schema';
+import { reservations, diningTables } from '@/schema';
 import { db } from '@/db';
 import { redirect } from 'next/navigation';
 import { gte } from 'drizzle-orm';
@@ -35,15 +35,15 @@ const handleSubmit = async (formData: FormData) => {
   const endTime = getEndTime(time);
 
   // Find an available table
-  const diningtable = await db
+  const diningTable = await db
      .select()
-     .from(diningtables)
-     .where(gte(diningtables.capacity, Number(guests)))
+     .from(diningTables)
+     .where(gte(diningTables.capacity, Number(guests)))
      .limit(1)
      .execute()
      .then((res) => res[0]);
 
-  if (!diningtable) {
+  if (!diningTable) {
     // Handle no available table
     console.error('No available table found for the selected number of guests.');
     return;
@@ -54,7 +54,8 @@ const handleSubmit = async (formData: FormData) => {
     await db
        .insert(reservations)
        .values({
-         diningtableId: diningtable.id,
+         diningTableId: diningTable.id,
+         name: name,
          email: email,
          reservationDate: date,
          startTime: time,
@@ -63,7 +64,7 @@ const handleSubmit = async (formData: FormData) => {
        .execute();
 
     // Redirect to thank-you page
-    redirect('/thank-you');
+    redirect('reserve/confirmation');
   } catch (error: unknown) {
     // Handle insertion errors
     if (error instanceof Error) {
