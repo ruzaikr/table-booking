@@ -1,7 +1,7 @@
 import { reservations, diningTables } from '@/schema';
 import { db } from '@/db';
 import { redirect } from 'next/navigation';
-import { gte } from 'drizzle-orm';
+import {and, eq, gt, gte, lt, not, exists} from 'drizzle-orm';
 
 // Helper function to calculate end time (2 hours after start time)
 const getEndTime = (startTime: string): string => {
@@ -34,36 +34,65 @@ const handleSubmit = async (formData: FormData) => {
   // Determine end time based on start time
   const endTime = getEndTime(time);
 
-  // Find an available dining table
-  const diningTable = await db
-     .select()
-     .from(diningTables)
-     .where(gte(diningTables.capacity, Number(guests)))
-     .limit(1)
-     .execute()
-     .then((res) => res[0]);
-
-  if (!diningTable) {
-    // Handle no available dining table
-    console.error('No available dining table found for the selected number of guests.');
-    return;
-  }
-
-  // Insert the reservation
   try {
-    await db
-       .insert(reservations)
-       .values({
-         diningTableId: diningTable.id,
-         name: name,
-         email: email,
-         reservationDate: date,
-         startTime: time,
-         endTime: endTime,
-       })
-       .execute();
+    await db.transaction(async (tx) => {
+
+      // Find an available dining table
+      const availableTable = await tx
+         .select()
+         .from(diningTables)
+         .where(
+            and(
+               // Ensure the table has sufficient capacity
+               gte(diningTables.capacity, Number(guests)),
+               // Ensure no overlapping reservations exist for this table
+               not(
+                  exists(
+                     tx
+                        .select()
+                        .from(reservations)
+                        .where(
+                           and(
+                              eq(reservations.diningTableId, diningTables.id),
+                              eq(reservations.reservationDate, date),
+                              lt(reservations.startTime, endTime),
+                              gt(reservations.endTime, time)
+                           )
+                        )
+                  )
+               )
+            )
+         )
+         .limit(1)
+         .execute()
+         .then((res) => res[0]);
+
+      if (!availableTable) {
+        // Handle no available dining table
+        console.error(
+           'No available dining table found for the selected number of guests and time slot.'
+        );
+        throw new Error('No available dining table.');
+      }
+
+      // Insert the reservation
+      await tx
+         .insert(reservations)
+         .values({
+           diningTableId: availableTable.id,
+           name: name,
+           email: email,
+           reservationDate: date,
+           startTime: time,
+           endTime: endTime
+         })
+         .execute();
+    });
+
+    // If the transaction is successful, redirect to confirmation
+    redirect('/reserve/confirmation');
   } catch (error: unknown) {
-    // Handle insertion errors
+    // Handle errors (e.g., no available table or insertion issues)
     if (error instanceof Error) {
       console.error('Error creating reservation:', error.message);
     } else {
@@ -71,8 +100,6 @@ const handleSubmit = async (formData: FormData) => {
     }
     return; // Exit the function if there's an error
   }
-
-  redirect('/reserve/confirmation');
 };
 
 export default function ReservePage() {

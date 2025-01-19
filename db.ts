@@ -1,8 +1,7 @@
-import { drizzle } from "drizzle-orm/neon-http";
-import { neon } from "@neondatabase/serverless";
-import { config } from "dotenv";
+import { drizzle } from 'drizzle-orm/neon-serverless';
+import ws from 'ws';
 
-config({ path: ".env.local" }); // or .env.local
-
-const sql = neon(process.env.DATABASE_URL!);
-export const db = drizzle({ client: sql });
+export const db = drizzle({
+  connection: "postgresql://neondb_owner:EslOijvI70kJ@ep-misty-cherry-a1ybs4ib.ap-southeast-1.aws.neon.tech/neondb?sslmode=require",
+  ws: ws,
+});

@@ -10,18 +10,21 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",
+    "bufferutil": "^4.0.9",
     "dotenv": "^16.4.7",
     "drizzle-orm": "^0.38.4",
     "next": "15.1.4",
     "pg-pool": "^3.7.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "ws": "^8.18.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/ws": "^8.5.13",
     "drizzle-kit": "^0.30.2",
     "eslint": "^9",
     "eslint-config-next": "15.1.4",
