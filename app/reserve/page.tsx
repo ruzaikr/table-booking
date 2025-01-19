@@ -191,8 +191,6 @@ export default function ReservePage() {
              <option value="4">4 people</option>
              <option value="5">5 people</option>
              <option value="6">6 people</option>
-             <option value="7">7 people</option>
-             <option value="8">8 people</option>
            </select>
          </div>
 
