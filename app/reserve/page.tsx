@@ -21,6 +21,7 @@ const handleSubmit = async (formData: FormData) => {
   const date = formData.get('date') as string;
   const time = formData.get('time') as string;
   const guests = formData.get('guests') as string;
+  const notes = formData.get('notes') as string;
 
   // Basic Validation
   if (!name || !email || !date || !time || !guests) {
@@ -82,6 +83,7 @@ const handleSubmit = async (formData: FormData) => {
            diningTableId: availableTable.id,
            name: name,
            email: email,
+           notes: notes,
            reservationDate: date,
            startTime: time,
            endTime: endTime

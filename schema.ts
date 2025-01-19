@@ -22,6 +22,7 @@ export const reservations = table(
         .references(() => diningTables.id, { onDelete: 'cascade' }),
      name: t.varchar("name", { length: 100 }).notNull(),
      email: t.varchar("email", { length: 255 }).notNull(),
+     notes: t.varchar("notes", { length: 255 }),
      reservationDate: t.date("reservation_date").notNull(),
      startTime: t.time("start_time").notNull(),
      endTime: t.time("end_time").notNull(),
