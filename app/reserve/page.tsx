@@ -89,8 +89,6 @@ const handleSubmit = async (formData: FormData) => {
          .execute();
     });
 
-    // If the transaction is successful, redirect to confirmation
-    redirect('/reserve/confirmation');
   } catch (error: unknown) {
     // Handle errors (e.g., no available table or insertion issues)
     if (error instanceof Error) {
@@ -100,6 +98,10 @@ const handleSubmit = async (formData: FormData) => {
     }
     return; // Exit the function if there's an error
   }
+
+  // If the transaction is successful, redirect to confirmation
+  redirect('/reserve/confirmation');
+
 };
 
 export default function ReservePage() {
