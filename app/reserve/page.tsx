@@ -34,7 +34,7 @@ const handleSubmit = async (formData: FormData) => {
   // Determine end time based on start time
   const endTime = getEndTime(time);
 
-  // Find an available table
+  // Find an available dining table
   const diningTable = await db
      .select()
      .from(diningTables)
@@ -44,8 +44,8 @@ const handleSubmit = async (formData: FormData) => {
      .then((res) => res[0]);
 
   if (!diningTable) {
-    // Handle no available table
-    console.error('No available table found for the selected number of guests.');
+    // Handle no available dining table
+    console.error('No available dining table found for the selected number of guests.');
     return;
   }
 
